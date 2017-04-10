@@ -61,16 +61,28 @@ namespace GenreSortir
     }
     public partial class MainWindow : Window
     {
+        //TODO 
+        /*
+         * ресайз, красота
+         * Защита от дурака
+         * ридми мд
+         * Чо там с тегами
+         * Рефактор имен
+         * Добавить fixTag
+         */
         string inputpath;
         string outputpath;
         List<string> allfiles;
         volatile bool needSelect;
         public volatile bool stopRequested;
-        Button butt2;
+        
+        Task sortingtask;
         string selectedGenre;
         volatile static MediaPlayer player = new MediaPlayer();
         SliderConverter sliderConverter = new SliderConverter(player);
         List<string> genres = new List<string>();
+        Button leaveButton;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -83,46 +95,45 @@ namespace GenreSortir
             bool colorch = false;
             foreach (var now in genres)
             {
-                var but = new Button();
-                but.Content = now;
-                but.FontSize = 15;
+                var butNow = new Button();
+                butNow.Content = now;
+                butNow.FontSize = 15;
+                
                 colorch = !colorch;
                 if (colorch)
-                    but.Background = Brushes.Gray;
+                    butNow.Background = Brushes.Gray;
                 else
-                    but.Background = Brushes.LightGray;
-                but.Width = 500;
-                but.Height = 30;
+                    butNow.Background = Brushes.LightGray;
+                butNow.Height = 30;
                 //todo set buttons bigger       
-                but.Click += delegate
+                butNow.Click += delegate
                 {
                     player.Stop();
                     selectedGenre = now;
                     needSelect = false;
                 };
-                buttonsList.Items.Add(but);
+                buttonsList.Items.Add(butNow);
             }
-            var butt = new Button();
-            butt.Content = "delete";
-            butt.Click += delegate
+            var delButton = new Button();
+            delButton.Content = "delete";
+            delButton.Click += delegate
             {
                 player.Stop();
                 selectedGenre = "delete";
                 needSelect = false;
             };
-            buttonsList.Items.Add(butt);
+            buttonsList.Items.Add(delButton);
+            
 
-            butt2 = new Button();
-            butt2.Content = "leave";
-            butt2.Click += delegate
+            leaveButton = new Button();
+            leaveButton.Content = "leave";
+            leaveButton.Click += delegate
             {
                 player.Stop();
                 selectedGenre = "leave";
                 needSelect = false;
             };
-            buttonsList.Items.Add(butt2);
-
-
+            buttonsList.Items.Add(leaveButton);
             player.MediaFailed += med;
         }
         static EventHandler<System.Windows.Media.ExceptionEventArgs> med = delegate
@@ -143,7 +154,8 @@ namespace GenreSortir
             configuration.Save();
             textBox.Text = folderpath;
             allfiles = Directory.GetFiles(folderpath, "*.mp3", SearchOption.AllDirectories).ToList();
-            listBox.ItemsSource = allfiles.ConvertAll(o => Path.GetFileName(o));
+            songsListBox.ItemsSource = allfiles.ConvertAll(o => Path.GetFileName(o));
+            songsListBox.UpdateLayout();
             return true;
         }
 
@@ -155,7 +167,8 @@ namespace GenreSortir
                 ChangeInputFolder(folderBrowserDialog1.SelectedPath);
             }
         }
-        Task sortingtask;
+
+        
         private void startButton_Click(object sender, RoutedEventArgs e)
         {
             sortingtask = new Task(delegate
@@ -164,7 +177,7 @@ namespace GenreSortir
                  {
                      Dispatcher.Invoke((() =>
                     {
-                        listBox.SelectedIndex = allfiles.IndexOf(now);
+                        songsListBox.SelectedIndex = allfiles.IndexOf(now);
                         label1.Content = Path.GetFileName(now);
                         player.Open(new Uri(now, UriKind.Relative));
                         player.Play();
@@ -238,7 +251,7 @@ namespace GenreSortir
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.N)
-                butt2.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                leaveButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         }
 
         private void moveCB_Click(object sender, RoutedEventArgs e)

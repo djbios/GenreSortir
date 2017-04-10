@@ -5,29 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GenreSortir"
         mc:Ignorable="d"
-        Title="MainWindow" Height="532.929" Width="1133.983" KeyUp="Window_KeyUp">
+        Title="GenreSortir" Height="607.329" Width="1110.783" KeyUp="Window_KeyUp">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="123*"/>
-            <RowDefinition Height="196*"/>
+            <RowDefinition Height="176*"/>
+            <RowDefinition Height="327*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="3*"/>
-        </Grid.ColumnDefinitions>
-        <TextBox x:Name="textBox" Grid.Column="1" Height="23" Margin="89,10,90,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True"/>
-        <Button x:Name="button" Content="Select" Grid.Column="1" Margin="0,13,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="button_Click"/>
-        <Label x:Name="label" Content="Input Folder" Grid.Column="1" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.455,-1.664"/>
-        <TextBox x:Name="textBox_Copy" Grid.Column="1" Height="23" Margin="89,41,90,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True"/>
-        <Button x:Name="button_Copy" Content="Select" Grid.Column="1" Margin="0,44,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="button_Copy_Click"/>
-        <Label x:Name="label_Copy" Content="Output Folder" Grid.Column="1" HorizontalAlignment="Left" Margin="5,37,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.455,-1.664"/>
-        <ListBox x:Name="listBox" HorizontalAlignment="Left" Grid.RowSpan="2" Grid.Column="0" Grid.Row="0" VerticalAlignment="Top"/>
+            <ColumnDefinition Width="40*"/>
 
-        <Slider x:Name="slider" Minimum="0" Maximum="100" Grid.Column="1" HorizontalAlignment="Left" Margin="264,143,0,0" VerticalAlignment="Top" Height="19" Width="289" Value="{Binding Position, Mode=TwoWay}"/>
-        <Label x:Name="label1" Content="Label" Grid.Column="1" HorizontalAlignment="Left" Margin="371,86,0,0" VerticalAlignment="Top" FontSize="24"/>
-        <Button x:Name="startButton" Content="Start Sortir!" Grid.Column="1" HorizontalAlignment="Left" Margin="14,86,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.524,0.683" Click="startButton_Click"/>
-        <ListBox x:Name="buttonsList" Grid.Column="1" Grid.Row="1"/>
-        <CheckBox x:Name="moveCB" Content="Move" Grid.Column="1" HorizontalAlignment="Left" Margin="759,86,0,0" VerticalAlignment="Top" Click="moveCB_Click"/>
+            <ColumnDefinition Width="121*"/>
+        </Grid.ColumnDefinitions>
+        <TextBox x:Name="textBox" Grid.Column="1" Height="23" Margin="94,10,89.4,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True"/>
+        <Button x:Name="button" Content="Select" Grid.Column="1" Margin="0,13,10.4,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="button_Click" Height="19"/>
+        <Label x:Name="label" Content="Input Folder" Grid.Column="1" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.455,-1.664" Height="26" Width="75"/>
+        <TextBox x:Name="textBox_Copy" Grid.Column="1" Height="23" Margin="94,41,89.4,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True"/>
+        <Button x:Name="button_Copy" Content="Select" Grid.Column="1" Margin="0,44,10.4,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="button_Copy_Click" Height="19"/>
+        <Label x:Name="label_Copy" Content="Output Folder" Grid.Column="1" HorizontalAlignment="Left" Margin="5,37,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.455,-1.664" Height="26" Width="84"/>
+        <ListBox x:Name="songsListBox" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,0.6" />
+           
+        <Slider x:Name="slider" Minimum="0" Maximum="100" Grid.Column="1" Margin="176.6,148,199,0" VerticalAlignment="Top" Height="19" Value="{Binding Position, Mode=TwoWay}"/>
+        <Label x:Name="label1" Content="Song Name" Grid.Column="1"  VerticalAlignment="Top" FontSize="24" Height="42" Margin="0,101,0.4,0" HorizontalContentAlignment="Center" IsEnabled="False"/>
+        <Button x:Name="startButton" Content="Start Sortir!" Grid.Column="1" HorizontalAlignment="Left" Margin="14,86,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.524,0.683" Click="startButton_Click" Height="19"/>
+        <ListBox x:Name="buttonsList" Grid.Column="1" Grid.Row="1" Margin="0,0.2,0.4,0.6" HorizontalContentAlignment="Stretch"/>
+        <CheckBox x:Name="moveCB" Content="Move" Grid.Column="1" HorizontalAlignment="Right" Margin="0,86,20,0" VerticalAlignment="Top" Click="moveCB_Click" Height="14" Width="49"/>
 
     </Grid>
 </Window>
