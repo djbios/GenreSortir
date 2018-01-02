@@ -27,7 +27,7 @@
         <Slider x:Name="slider" Minimum="0" Maximum="100" Grid.Column="1" Margin="176.6,148,199,0" VerticalAlignment="Top" Height="19" Value="{Binding Position, Mode=TwoWay}"/>
         <Label x:Name="label1" Content="Song Name" Grid.Column="1"  VerticalAlignment="Top" FontSize="24" Height="42" Margin="0,101,0.4,0" HorizontalContentAlignment="Center" IsEnabled="False"/>
         <Button x:Name="startButton" Content="Start Sortir!" Grid.Column="1" HorizontalAlignment="Left" Margin="14,86,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.524,0.683" Click="startButton_Click" Height="19"/>
-        <ListBox x:Name="buttonsList" Grid.Column="1" Grid.Row="1" Margin="0,0.2,0.4,0.6" HorizontalContentAlignment="Stretch"/>
+        <ListBox x:Name="buttonsList" Grid.Column="1" Grid.Row="1" Margin="0,0.2,0.4,0.6" HorizontalContentAlignment="Stretch" SelectionChanged="buttonsList_SelectionChanged"/>
         <CheckBox x:Name="moveCB" Content="Move" Grid.Column="1" HorizontalAlignment="Right" Margin="0,86,20,0" VerticalAlignment="Top" Click="moveCB_Click" Height="14" Width="49"/>
 
     </Grid>

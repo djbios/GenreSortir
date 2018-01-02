@@ -69,13 +69,14 @@ namespace GenreSortir
          * Чо там с тегами
          * Рефактор имен
          * Добавить fixTag
+         * Очередь копирования
          */
         string inputpath;
         string outputpath;
         List<string> allfiles;
         volatile bool needSelect;
         public volatile bool stopRequested;
-        
+
         Task sortingtask;
         string selectedGenre;
         volatile static MediaPlayer player = new MediaPlayer();
@@ -98,7 +99,7 @@ namespace GenreSortir
                 var butNow = new Button();
                 butNow.Content = now;
                 butNow.FontSize = 15;
-                
+
                 colorch = !colorch;
                 if (colorch)
                     butNow.Background = Brushes.Gray;
@@ -123,7 +124,7 @@ namespace GenreSortir
                 needSelect = false;
             };
             buttonsList.Items.Add(delButton);
-            
+
 
             leaveButton = new Button();
             leaveButton.Content = "leave";
@@ -168,97 +169,125 @@ namespace GenreSortir
             }
         }
 
-        
+
         private void startButton_Click(object sender, RoutedEventArgs e)
         {
             sortingtask = new Task(delegate
              {
-                 foreach (var now in allfiles)
+             foreach (var now in allfiles)
+             {
+                 Dispatcher.Invoke((() =>
+                {
+                    songsListBox.SelectedIndex = allfiles.IndexOf(now);
+                    label1.Content = Path.GetFileName(now);
+                    player.Open(new Uri(now, UriKind.Relative));
+                    player.Play();
+                    player.Position = new TimeSpan(0, 0, 10);
+
+                }));
+
+                 needSelect = true;
+                 while (needSelect)
                  {
-                     Dispatcher.Invoke((() =>
-                    {
-                        songsListBox.SelectedIndex = allfiles.IndexOf(now);
-                        label1.Content = Path.GetFileName(now);
-                        player.Open(new Uri(now, UriKind.Relative));
-                        player.Play();
-                        player.Position = new TimeSpan(0, 0, 10);
-
-                    }));
-
-                     needSelect = true;
-                     while (needSelect)
-                     {
-                         if (stopRequested)
-                             break;
-                         Thread.Sleep(100);
-                     }
                      if (stopRequested)
                          break;
-                     Dispatcher.Invoke((() =>
+                     Thread.Sleep(100);
+                 }
+                 if (stopRequested)
+                     break;
+                 Dispatcher.Invoke((async () =>
+                 {
+                     player.Stop();
+                     player.Close();
+                     Thread.Sleep(200);
+                     if (selectedGenre == "leave")
+                     { }
+                     else
                      {
-                         player.Stop();
-                         player.Close();
-                         Thread.Sleep(200);
-                         if (selectedGenre == "leave")
-                         { }
+                         if (selectedGenre == "delete")
+                             File.Delete(now);
                          else
                          {
-                             if (selectedGenre == "delete")
-                                 File.Delete(now);
-                             else
+                             bool move = (bool)moveCB.IsChecked;
+                             await Task.Run(delegate
                              {
-                                 try
-                                 {
+                             try
+                             {
 
-                                     Directory.CreateDirectory(Path.Combine(outputpath, selectedGenre));
-                                     if (!File.Exists(Path.Combine(outputpath, selectedGenre, Path.GetFileName(now))))
-                                     {
-                                         if ((bool)moveCB.IsChecked)
-                                             File.Move(now, Path.Combine(outputpath, selectedGenre, Path.GetFileName(now)));
-                                         else
-                                             File.Copy(now, Path.Combine(outputpath, selectedGenre, Path.GetFileName(now)));
-                                     }
-                                     TagLib.File f = TagLib.File.Create(Path.Combine(outputpath, selectedGenre, Path.GetFileName(now)));
-                                     f.Tag.Genres = new string[] { selectedGenre };
-                                     f.Save();
-                                 }
-                                 catch
+                                 Directory.CreateDirectory(Path.Combine(outputpath, selectedGenre));
+                                 string dstPath = Path.Combine(outputpath, selectedGenre, Path.GetFileName(now));
+                                 if (!File.Exists(dstPath))
                                  {
-                                     MessageBox.Show("Some shit happend");
+                                         //await CopyFileAsync(now, dstPath, (bool)moveCB.IsChecked);
+                                         if (move)
+                                         File.Move(now, dstPath);
+                                     else
+                                         File.Copy(now, dstPath);
                                  }
-                             }
-                         }
+                                     Thread.Sleep(200);
+                                 TagLib.File f = TagLib.File.Create(Path.Combine(outputpath, selectedGenre, Path.GetFileName(now)));
+                                 f.Tag.Genres = new string[] { selectedGenre };
+                                 f.Save();
+                                 }
+
+                                 catch (Exception ex)
+                                 {
+                                     MessageBox.Show(ex.ToString());
+                                 }
+                             });
+                     }
+                 }
                      }));
-                 };
-             });
+        };
+    });
             stopRequested = false;
             sortingtask.Start();
         }
 
-        private void button_Copy_Click(object sender, RoutedEventArgs e)
+public async Task CopyFileAsync(string sourcePath, string destinationPath, bool move)
+{
+    using (Stream source = File.Open(sourcePath, FileMode.Open))
+    {
+        using (Stream destination = File.Create(destinationPath))
         {
-            System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            if (folderBrowserDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                outputpath = folderBrowserDialog1.SelectedPath;
-                Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                configuration.AppSettings.Settings["outputpath"].Value = outputpath;
-                configuration.Save();
-                textBox_Copy.Text = outputpath;
-            }
+            await source.CopyToAsync(destination);
         }
+    }
+    if (move)
+        await Task.Run(delegate { File.Delete(sourcePath); });
 
-        private void Window_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.N)
-                leaveButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        }
+}
 
-        private void moveCB_Click(object sender, RoutedEventArgs e)
-        {
-            Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            configuration.AppSettings.Settings["move"].Value = (Convert.ToInt32(moveCB.IsChecked)).ToString();
-            configuration.Save();
-        }
+
+private void button_Copy_Click(object sender, RoutedEventArgs e)
+{
+    System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+    if (folderBrowserDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+    {
+        outputpath = folderBrowserDialog1.SelectedPath;
+        Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        configuration.AppSettings.Settings["outputpath"].Value = outputpath;
+        configuration.Save();
+        textBox_Copy.Text = outputpath;
+    }
+}
+
+private void Window_KeyUp(object sender, KeyEventArgs e)
+{
+    if (e.Key == Key.N)
+        leaveButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+}
+
+private void moveCB_Click(object sender, RoutedEventArgs e)
+{
+    Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+    configuration.AppSettings.Settings["move"].Value = (Convert.ToInt32(moveCB.IsChecked)).ToString();
+    configuration.Save();
+}
+
+private void buttonsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+{
+
+}
     }
 }
